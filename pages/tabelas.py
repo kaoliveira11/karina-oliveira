@@ -6,11 +6,14 @@ from indicadores.carregar_dados import carregar_dados
 st.title("📑 Tabelas de Análise")
 st.subheader("Dados absolutos")
 
+if "usuario" not in st.session_state:
+    st.session_state.usuario = ""
+
 if st.session_state.usuario:
     st.success(f"Olá, {st.session_state.usuario}! Seja bem-vindo(a) 😊")
 else:
     st.info("Olá! Digite seu nome na barra lateral para personalizar sua experiência.")
-    
+
 st.write(
     """
     Esta página apresenta tabelas estáticas com informações complementares

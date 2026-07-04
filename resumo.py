@@ -6,10 +6,12 @@ st.set_page_config(
     layout="wide"
 )
 
-if "usuario" not in st.session_state:
-    st.session_state.usuario = ""
+
 
 st.sidebar.title("👤 Usuário")
+
+if "usuario" not in st.session_state:
+    st.session_state.usuario = ""
 
 st.session_state.usuario = st.sidebar.text_input(
     "Digite seu nome:",

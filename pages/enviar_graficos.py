@@ -21,6 +21,9 @@ from enviar_arquivos import enviar_email
 
 st.title("📧 Envio de Gráficos por E-mail")
 
+if "usuario" not in st.session_state:
+    st.session_state.usuario = ""
+
 if st.session_state.usuario:
     st.success(f"Olá, {st.session_state.usuario}! Seja bem-vindo(a) 😊")
 else:

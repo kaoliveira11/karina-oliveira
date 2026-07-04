@@ -10,6 +10,9 @@ from indicadores.graficos import (
 
 st.title("👥 Perfil dos Clientes")
 
+if "usuario" not in st.session_state:
+    st.session_state.usuario = ""
+
 if st.session_state.usuario:
     st.success(f"Olá, {st.session_state.usuario}! Seja bem-vindo(a) 😊")
 else:
