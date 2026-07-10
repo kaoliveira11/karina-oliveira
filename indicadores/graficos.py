@@ -167,7 +167,7 @@ def grafico_contrato_churn():
             f"{cancelados}\n({taxa:.1f}%)",
             ha="center",
             va="bottom",
-            fontsize=5
+            fontsize=7
         )
 
     ax.set_title(
@@ -294,6 +294,7 @@ def grafico_pagamento_churn():
 
     df = carregar_dados()
 
+    # 1. Agrupa os dados
     dados = (
         df.groupby("Payment Method")
         .agg(
@@ -303,74 +304,113 @@ def grafico_pagamento_churn():
         .reset_index()
     )
 
+
+    # 2. Calcula a taxa
     dados["Taxa de Churn"] = (
-        dados["Clientes_Cancelados"] / dados["Total_Clientes"] * 100
+        dados["Clientes_Cancelados"] /
+        dados["Total_Clientes"] * 100
     ).round(1)
 
+    # 3. Traduz
     dados["Payment Method"] = dados["Payment Method"].replace({
         "Mailed Check": "Cheque",
         "Bank Withdrawal": "Débito Automático",
-        "Credit Card": "Cartão",
-        "Electronic Check": "Cheque Eletrônico"
+        "Credit Card": "Cartão de Crédito"
     })
 
-    dados = dados.sort_values("Taxa de Churn", ascending=False)
-
-    fig, ax = plt.subplots(figsize=(4.8, 2.8), dpi=100)
-
-    barras = ax.bar(
-        dados["Payment Method"],
-        dados["Taxa de Churn"],
-        color="tan",
-        width=0.50
+    # 4. Ordena
+    dados = dados.sort_values(
+        "Clientes_Cancelados",
+        ascending=False
     )
 
-    maior = dados["Taxa de Churn"].max()
+    # 5. Cria a figura
+    fig, ax = plt.subplots(figsize=(5,2))
 
-    for barra, cancelados, taxa in zip(
-        barras,
+    # 6. POSIÇÃO DAS BARRAS
+    import numpy as np
+
+    x = np.arange(len(dados))
+    largura = 0.35
+
+    # 7. BARRAS DO TOTAL
+    barras_total = ax.bar(
+        x - largura/2,
+        dados["Total_Clientes"],
+        largura,
+        color="tan",
+        label="Total"
+    )
+
+    # 8. BARRAS DOS CANCELADOS
+    barras_cancelados = ax.bar(
+        x + largura/2,
         dados["Clientes_Cancelados"],
-        dados["Taxa de Churn"]
-    ):
-
-        ax.text(
-            barra.get_x() + barra.get_width()/2,
-            barra.get_height() + 0.8,
-            f"{cancelados}\n({taxa:.1f}%)",
-            ha="center",
-            va="bottom",
-            fontsize=6.5
-        )
+        largura,
+        color="gray",
+        label="Cancelados"
+    )
 
     ax.set_title(
         "Churn por Método de Pagamento",
         fontsize=8,
         fontweight="bold",
-        pad=6
+        pad=4
     )
 
-    ax.set_xlabel("")
-    ax.set_ylabel("")
+    # 9. NOME DOS MÉTODOS
+    ax.set_xticks(x)
+    ax.set_xticklabels(
+        dados["Payment Method"],
+        fontsize=4
+    )
 
-    ax.set_ylim(0, maior * 1.30)
+    # 10. TEXTO DO TOTAL
+    for barra in barras_total:
 
-    ax.tick_params(axis="x", labelsize=6, rotation=18)
+        ax.text(
+            barra.get_x() + barra.get_width()/2,
+            barra.get_height()+30,
+            f"{int(barra.get_height())}",
+            ha="center",
+            fontsize=7
+        )
+
+    # 11. TEXTO DOS CANCELADOS
+    for barra, percentual in zip(
+        barras_cancelados,
+        dados["Taxa de Churn"]
+    ):
+
+        ax.text(
+            barra.get_x() + barra.get_width()/2,
+            barra.get_height()+30,
+            f"{int(barra.get_height())}\n({percentual:.1f}%)",
+            ha="center",
+            fontsize=7
+        )
+
+    ax.legend(
+        fontsize=6,  # diminui a fonte
+        frameon=False,  # remove a caixa
+        ncol=2,  # coloca os dois itens na mesma linha
+        loc="upper center"
+    )
+
+    # Remove a grade
+    ax.grid(False)
+
+    # Remove os valores do eixo Y
     ax.tick_params(axis="y", left=False, labelleft=False)
 
+    # Mantém apenas os nomes das categorias no eixo X
+    ax.tick_params(axis="x", bottom=False, labelsize=8)
+
+    # Remove todas as bordas do gráfico
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(False)
     ax.spines["bottom"].set_visible(False)
-
-    ax.grid(False)
-
-    fig.subplots_adjust(
-        left=0.06,
-        right=0.98,
-        top=0.82,
-        bottom=0.33
-    )
-
     return fig
 
 # -- GRAFICO GENERO - ##
